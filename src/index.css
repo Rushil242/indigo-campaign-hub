@@ -9,26 +9,26 @@ All colors MUST be HSL.
 @layer base {
   :root {
     /* WhatsApp Campaign Dashboard Design System */
-    --background: 249 250 251; /* #F9FAFB */
-    --foreground: 17 24 39; /* #111827 */
+    --background: 210 20% 98%; /* #F9FAFB */
+    --foreground: 221 39% 11%; /* #111827 */
 
     --card: 0 0% 100%; /* #FFFFFF */
-    --card-foreground: 17 24 39; /* #111827 */
+    --card-foreground: 221 39% 11%; /* #111827 */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 17 24 39;
+    --popover-foreground: 221 39% 11%;
 
-    --primary: 239 68% 68%; /* #4F46E5 */
-    --primary-foreground: 255 255 255;
+    --primary: 246 74% 59%; /* #4F46E5 */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 238 75% 70%; /* #6366F1 */
-    --secondary-foreground: 255 255 255;
+    --secondary: 239 84% 67%; /* #6366F1 */
+    --secondary-foreground: 0 0% 100%;
 
-    --muted: 229 229 229; /* #E5E5E5 */
-    --muted-foreground: 107 114 128; /* #6B7280 */
+    --muted: 220 13% 91%;
+    --muted-foreground: 220 9% 46%; /* #6B7280 */
 
-    --accent: 229 235 252; /* #A5B4FC */
-    --accent-foreground: 79 70 229;
+    --accent: 230 94% 82%; /* #A5B4FC */
+    --accent-foreground: 246 74% 59%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
