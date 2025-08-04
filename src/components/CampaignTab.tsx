@@ -37,7 +37,7 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
     setIsLoadingTemplates(true);
     try {
       // Call the Edge Function directly via fetch
-      const response = await fetch('/api/get-templates', {
+      const response = await fetch('/api/functions/v1/get-templates', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -84,7 +84,7 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
       };
 
       // Call the Edge Function directly via fetch
-      const response = await fetch('/api/trigger-campaign', {
+      const response = await fetch('/api/functions/v1/trigger-campaign', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
