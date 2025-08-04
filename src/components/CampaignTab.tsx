@@ -8,7 +8,6 @@ import { UrlInput } from '@/components/UrlInput';
 import { TemplateSelector, Template } from '@/components/TemplateSelector';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
-import { createClient } from '@supabase/supabase-js';
 
 interface CampaignTabProps {
   triggerUrl: string;
@@ -25,11 +24,6 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const { toast } = useToast();
 
-  const supabase = createClient(
-    import.meta.env.VITE_SUPABASE_URL,
-    import.meta.env.VITE_SUPABASE_ANON_KEY
-  );
-
   // Fetch templates when templatesUrl changes
   useEffect(() => {
     if (templatesUrl) {
@@ -42,9 +36,19 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
     
     setIsLoadingTemplates(true);
     try {
-      const { data, error } = await supabase.functions.invoke('get-templates');
+      // Call the Edge Function directly via fetch
+      const response = await fetch('/api/get-templates', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
       
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Failed to fetch templates: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
       
       if (data.success) {
         setTemplates(Array.isArray(data.templates) ? data.templates : []);
@@ -79,11 +83,20 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
         templateId: selectedTemplate
       };
 
-      const { data, error } = await supabase.functions.invoke('trigger-campaign', {
-        body: payload
+      // Call the Edge Function directly via fetch
+      const response = await fetch('/api/trigger-campaign', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(payload)
       });
       
-      if (error) throw error;
+      if (!response.ok) {
+        throw new Error(`Campaign submission failed: ${response.statusText}`);
+      }
+      
+      const data = await response.json();
       
       if (data.success) {
         toast({
