@@ -8,6 +8,7 @@ import { UrlInput } from '@/components/UrlInput';
 import { TemplateSelector, Template } from '@/components/TemplateSelector';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
+import { createClient } from '@supabase/supabase-js';
 
 interface CampaignTabProps {
   triggerUrl: string;
@@ -24,6 +25,11 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
   const [isLoadingTemplates, setIsLoadingTemplates] = useState(false);
   const { toast } = useToast();
 
+  const supabase = createClient(
+    import.meta.env.VITE_SUPABASE_URL,
+    import.meta.env.VITE_SUPABASE_ANON_KEY
+  );
+
   // Fetch templates when templatesUrl changes
   useEffect(() => {
     if (templatesUrl) {
@@ -36,17 +42,20 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
     
     setIsLoadingTemplates(true);
     try {
-      const response = await fetch(templatesUrl);
-      if (!response.ok) {
-        throw new Error(`Failed to fetch templates: ${response.statusText}`);
+      const { data, error } = await supabase.functions.invoke('get-templates');
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        setTemplates(Array.isArray(data.templates) ? data.templates : []);
+      } else {
+        setTemplates([]);
       }
-      const data = await response.json();
-      setTemplates(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error fetching templates:', error);
       toast({
         title: "Error",
-        description: "Failed to load templates. Please check the Templates URL in Settings.",
+        description: "Failed to load templates. Please check your settings.",
         variant: "destructive",
       });
       setTemplates([]);
@@ -70,29 +79,27 @@ export function CampaignTab({ triggerUrl, templatesUrl }: CampaignTabProps) {
         templateId: selectedTemplate
       };
 
-      const response = await fetch(triggerUrl, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
+      const { data, error } = await supabase.functions.invoke('trigger-campaign', {
+        body: payload
       });
+      
+      if (error) throw error;
+      
+      if (data.success) {
+        toast({
+          title: "Success!",
+          description: "Campaign submitted successfully.",
+          className: "bg-success text-success-foreground",
+        });
 
-      if (!response.ok) {
-        throw new Error(`Campaign submission failed: ${response.statusText}`);
+        // Reset form
+        setSelectedFile(null);
+        setSheetUrl('');
+        setSelectedTemplate('');
+        setInputMode('file');
+      } else {
+        throw new Error('Campaign submission failed');
       }
-
-      toast({
-        title: "Success!",
-        description: "Campaign submitted successfully.",
-        className: "bg-success text-success-foreground",
-      });
-
-      // Reset form
-      setSelectedFile(null);
-      setSheetUrl('');
-      setSelectedTemplate('');
-      setInputMode('file');
 
     } catch (error) {
       console.error('Error submitting campaign:', error);
